@@ -1,20 +1,26 @@
-int NUM_MOVERS = 1200;
+import com.hamoid.*; //<>// //<>//
+
+
+int NUM_MOVERS = 2500;
 boolean SHOWMOVER = true;
 float MOVER_SIZE_MULT = .35;
 boolean SHOWTRAIL = true;
 int TRAIL_LENGTH = 6;
 boolean FULLCOLOR = false;
-float GRAVITATIONAL_CONSTANT = .007; // 0.01;
+float GRAVITATIONAL_CONSTANT = .0007; // 0.01;
 float GRAVITATIONAL_INCREMENT = .1;
 boolean ATTRACT = true;
 int FLIP_FRAME = int(random(300,500));
 int FLIP_FRAME_COUNT = 0;
 
+boolean EXPORT = false;
+
+VideoExport videoExport;
+
 Mover[] movers = new Mover[NUM_MOVERS];
 
 void setup() {
   //size(640,480, P2D);
-  frameRate(60);
   colorMode(HSB, 100, 100, 100, 100);
   fullScreen(P2D);
   rectMode(CENTER);
@@ -22,11 +28,16 @@ void setup() {
     movers[i] = new Mover(random(20,80), random(width), random(height));
   }
   println("attract " + FLIP_FRAME);
+  
+  if (EXPORT) {
+    videoExport = new VideoExport(this);
+    videoExport.startMovie();
+  }
 }
 
 void draw() {
   
-  background(0);
+  background(100);
   
   // flip to repel for a little bit and then attract for a longer time
   // when you go back to attract, reset velocity so you're not going too fast
@@ -64,6 +75,17 @@ void draw() {
     movers[i].checkEdges();
     movers[i].update();
     movers[i].display();
+  }
+  
+  if (EXPORT)
+    videoExport.saveFrame();
+}
+
+void keyPressed() {
+  if (key == 'q') {
+    if (EXPORT)
+      videoExport.endMovie();
+    exit();
   }
 }
 
@@ -193,7 +215,7 @@ class Mover {
   void checkEdges() {
     // this didn't work (tryin to repel from edges);
     // think about why
-   /* PVector north = new PVector(location.x, 0); //<>//
+   /* PVector north = new PVector(location.x, 0);
     PVector south = new PVector(location.x, height);
     PVector east = new PVector(width, location.y);
     PVector west = new PVector(0, location.y);
